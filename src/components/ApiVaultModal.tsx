@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Eye, EyeOff, Save, Lock, Key, X, Check, RefreshCw } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff, Save, Lock, X, Check, FileText, Upload, Cpu } from 'lucide-react';
 import { ApiVaultKeys } from '../types';
 
 interface ApiVaultModalProps {
@@ -32,15 +32,41 @@ export const ApiVaultModal: React.FC<ApiVaultModalProps> = ({
     setTimeout(() => setSavedSuccess(false), 2000);
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      setFormData((prev) => ({
+        ...prev,
+        pdfInstructionName: file.name,
+        pdfInstructionText: text || `[Uploaded PDF Instructions from ${file.name}]`,
+      }));
+    };
+    reader.readAsText(file);
+  };
+
   const fields = [
+    { key: 'nvidiaApiKey', label: 'NVIDIA NIM API Key (Llama 3.3, DeepSeek R1)', placeholder: 'nvapi-...' },
+    { key: 'geminiApiKey', label: 'Gemini AI API Key', placeholder: 'AIzaSy...' },
     { key: 'telegramBotToken', label: 'Telegram Bot Token', placeholder: '123456789:ABCdefGHIjklMNOpqrSTUvwxyz' },
     { key: 'telegramChatId', label: 'Telegram Target Chat ID', placeholder: '@my_crypto_alerts or 987654321' },
     { key: 'oneInchApiKey', label: '1inch Aggregator API Key', placeholder: '1inch_live_sec_...' },
-    { key: 'geminiApiKey', label: 'Gemini AI API Key (Server Override)', placeholder: 'AIzaSy...' },
     { key: 'pimlicoApiKey', label: 'Pimlico Paymaster API Key / URL', placeholder: 'https://api.pimlico.io/v2/base/rpc?apikey=...' },
     { key: 'walletAddress', label: 'Payout / Trading Wallet Address', placeholder: '0x1234...5678' },
     { key: 'walletPrivateKey', label: 'Web3 Wallet Private Key (Local Encrypted)', placeholder: '0xabcdef...' },
     { key: 'webhookUrl', label: 'Custom Outbound Webhook URL', placeholder: 'https://api.mybot.com/webhook' },
+  ];
+
+  const AI_MODELS = [
+    { value: 'gemini-3.6-flash', label: '⚡ Google Gemini 3.6 Flash (Fast)' },
+    { value: 'gemini-2.5-pro', label: '🧠 Google Gemini 2.5 Pro (Reasoning)' },
+    { value: 'meta/llama-3.3-70b-instruct', label: '🟢 NVIDIA Llama 3.3 70B Instruct' },
+    { value: 'deepseek-ai/deepseek-r1', label: '🐋 NVIDIA DeepSeek R1 (Deep Reasoning)' },
+    { value: 'mistralai/mistral-large-2-instruct', label: '🔮 NVIDIA Mistral Large 2 Instruct' },
+    { value: 'nvidia/llama-3.1-nemotron-70b-instruct', label: '⚡ NVIDIA Nemotron 70B' },
   ];
 
   return (
@@ -54,13 +80,13 @@ export const ApiVaultModal: React.FC<ApiVaultModalProps> = ({
             </div>
             <div>
               <h2 className="font-bold text-base text-slate-100 flex items-center gap-2">
-                Secure API Vault
+                Secure API Vault & AI Model Engine
                 <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30">
                   256-bit AES Encrypted
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
-                Encrypted exchange credentials, bot tokens, and zero-gas Web3 payout keys
+                Encrypted credentials, NVIDIA NIM AI keys, Telegram PDF instructions
               </p>
             </div>
           </div>
@@ -73,7 +99,75 @@ export const ApiVaultModal: React.FC<ApiVaultModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-4 space-y-3">
+        <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* AI Model Selection Dropdown */}
+          <div className="space-y-1.5 p-3 rounded-xl bg-indigo-950/30 border border-indigo-500/30">
+            <label className="text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
+              <Cpu className="w-4 h-4 text-indigo-400" />
+              <span>Preferred AI Model Engine (Gemini & NVIDIA NIM)</span>
+            </label>
+            <select
+              value={formData.preferredModel || 'gemini-3.6-flash'}
+              onChange={(e) => setFormData({ ...formData, preferredModel: e.target.value })}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 px-3 text-xs text-slate-100 font-medium focus:outline-none focus:border-indigo-500"
+            >
+              {AI_MODELS.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-[11px] text-slate-400">
+              Selected model will be used for AI prompt extraction, decision brain, and graph generation.
+            </p>
+          </div>
+
+          {/* PDF Instructions Attachment */}
+          <div className="space-y-2 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+            <label className="text-xs font-semibold text-sky-300 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <FileText className="w-4 h-4 text-sky-400" />
+                Telegram & AI PDF Instruction Manual
+              </span>
+              {formData.pdfInstructionName && (
+                <span className="text-[10px] text-emerald-400 font-mono">
+                  ✓ {formData.pdfInstructionName}
+                </span>
+              )}
+            </label>
+
+            <div className="flex items-center gap-2">
+              <label className="cursor-pointer px-3 py-1.5 rounded-xl bg-sky-950/80 border border-sky-800 hover:bg-sky-900/80 text-sky-200 text-xs font-medium flex items-center gap-1.5 transition-colors">
+                <Upload className="w-3.5 h-3.5" />
+                <span>Upload PDF / Text File</span>
+                <input
+                  type="file"
+                  accept=".pdf,.txt,.md,.json"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+              <span className="text-[11px] text-slate-500">
+                {formData.pdfInstructionName || 'No PDF uploaded yet'}
+              </span>
+            </div>
+
+            <textarea
+              rows={3}
+              value={formData.pdfInstructionText || ''}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  pdfInstructionText: e.target.value,
+                  pdfInstructionName: formData.pdfInstructionName || 'Custom_Instructions.pdf',
+                })
+              }
+              placeholder="Paste or type Telegram operating instructions here (e.g. '1. Start bot with /start\n2. Only execute flashloan if spread > 0.5%\n3. Alert if disconnected')..."
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-sky-500"
+            />
+          </div>
+
+          {/* Credentials Inputs */}
           {fields.map((f) => {
             const val = (formData as any)[f.key] || '';
             const isVisible = showMasked[f.key];
@@ -113,7 +207,7 @@ export const ApiVaultModal: React.FC<ApiVaultModalProps> = ({
 
           <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
             <span className="text-[11px] text-slate-500">
-              Keys are stored in your secure local session.
+              Keys and rules are stored in your secure encrypted session.
             </span>
 
             <div className="flex items-center space-x-2">

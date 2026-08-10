@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   XCircle,
   Loader2,
-  Play
+  Play,
+  FileText
 } from 'lucide-react';
 import { NODE_REGISTRY } from '../../data/nodeRegistry';
 import { WorkflowNodeData } from '../../types';
@@ -34,6 +35,7 @@ const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   Zap,
   MessageSquare,
   ExternalLink,
+  FileText,
 };
 
 export const CustomNodeWrapper: React.FC<CustomNodeWrapperProps> = ({

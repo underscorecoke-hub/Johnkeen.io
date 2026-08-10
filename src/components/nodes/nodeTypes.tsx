@@ -8,6 +8,7 @@ export const createCustomNode = (nodeType: string) => {
 export const nodeTypes = {
   trigger_telegram: createCustomNode('trigger_telegram'),
   trigger_webhook: createCustomNode('trigger_webhook'),
+  data_instruction: createCustomNode('data_instruction'),
   data_gemini: createCustomNode('data_gemini'),
   data_1inch: createCustomNode('data_1inch'),
   web3_balancer: createCustomNode('web3_balancer'),

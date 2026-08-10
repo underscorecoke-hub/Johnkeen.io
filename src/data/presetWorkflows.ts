@@ -29,9 +29,25 @@ export const PRESET_WORKFLOWS: PresetWorkflow[] = [
         },
       },
       {
+        id: 'node-pdf-instructions',
+        type: 'data_instruction',
+        position: { x: 380, y: 20 },
+        data: {
+          label: 'PDF & System Instructions',
+          category: 'ai_data',
+          nodeType: 'data_instruction',
+          config: {
+            instructionTitle: 'Telegram Bot & System Master Instructions',
+            pdfFileName: 'Telegram_System_Instructions.pdf',
+            rulesText: '1. Execute zero-gas flash loans when arbitrage spread > 0.5%.\n2. Apply Pimlico ERC-4337 paymaster sponsorship.\n3. Send execution summary alerts to Telegram.',
+            strictEnforcement: true,
+          },
+        },
+      },
+      {
         id: 'node-1inch-scanner',
         type: 'data_1inch',
-        position: { x: 380, y: 150 },
+        position: { x: 380, y: 250 },
         data: {
           label: '1inch DEX Arbitrage Scanner',
           category: 'ai_data',
@@ -103,6 +119,15 @@ export const PRESET_WORKFLOWS: PresetWorkflow[] = [
       },
     ],
     edges: [
+      {
+        id: 'e-pdf-ai',
+        source: 'node-pdf-instructions',
+        sourceHandle: 'instruction_rules',
+        target: 'node-gemini-ai',
+        targetHandle: 'input_text',
+        animated: true,
+        style: { stroke: '#06b6d4', strokeWidth: 2 },
+      },
       {
         id: 'e1',
         source: 'node-tg-trigger',

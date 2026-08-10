@@ -27,6 +27,7 @@ import { NODE_REGISTRY } from './data/nodeRegistry';
 import { ApiVaultKeys, ExecutionLogItem, NodeType, WorkflowNodeData } from './types';
 
 const INITIAL_VAULT_KEYS: ApiVaultKeys = {
+  nvidiaApiKey: '',
   telegramBotToken: '',
   telegramChatId: '@crypto_alerts_channel',
   oneInchApiKey: '',
@@ -35,6 +36,7 @@ const INITIAL_VAULT_KEYS: ApiVaultKeys = {
   walletPrivateKey: '',
   pimlicoApiKey: 'https://api.pimlico.io/v2/base/rpc',
   webhookUrl: 'https://api.mybot.com/webhook',
+  preferredModel: 'gemini-3.6-flash',
 };
 
 const DEFAULT_WORKFLOW = PRESET_WORKFLOWS[0];
@@ -167,15 +169,17 @@ function AppContent() {
     if (selectedNodeId === nodeId) setSelectedNodeId(null);
   };
 
-  // AI Graph Generation via Gemini
-  const handleGenerateGraph = async (promptText: string) => {
+  // AI Graph Generation via Gemini or NVIDIA NIM
+  const handleGenerateGraph = async (promptText: string, modelOverride?: string) => {
     setIsGeneratingGraph(true);
     try {
+      const chosenModel = modelOverride || vaultKeys.preferredModel || 'gemini-3.6-flash';
       const res = await fetch('/api/generate-graph', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: promptText,
+          model: chosenModel,
           apiVaultKeys: vaultKeys,
         }),
       });
@@ -286,6 +290,8 @@ function AppContent() {
           <CopilotPromptBar
             onGenerateGraph={handleGenerateGraph}
             isGenerating={isGeneratingGraph}
+            selectedModel={vaultKeys.preferredModel || 'gemini-3.6-flash'}
+            onModelChange={(model) => handleSaveVaultKeys({ ...vaultKeys, preferredModel: model })}
           />
 
           <ReactFlow

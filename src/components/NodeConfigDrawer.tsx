@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Sliders, Info, Trash2 } from 'lucide-react';
+import { X, Save, Sliders, Info, Trash2, Upload, FileText } from 'lucide-react';
 import { NODE_REGISTRY } from '../data/nodeRegistry';
 import { WorkflowNodeData } from '../types';
 
@@ -37,6 +37,22 @@ export const NodeConfigDrawer: React.FC<NodeConfigDrawerProps> = ({
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      setFormData((prev) => ({
+        ...prev,
+        pdfFileName: file.name,
+        rulesText: text || `[Uploaded PDF Content from ${file.name}]`,
+      }));
+    };
+    reader.readAsText(file);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSaveConfig(nodeId, formData);
@@ -67,8 +83,40 @@ export const NodeConfigDrawer: React.FC<NodeConfigDrawerProps> = ({
 
       {/* Form Fields */}
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
+        {nodeData.nodeType === 'data_instruction' && (
+          <div className="p-3 rounded-xl bg-cyan-950/40 border border-cyan-800/60 space-y-2 text-xs">
+            <div className="flex items-center justify-between text-cyan-300 font-semibold">
+              <span className="flex items-center gap-1.5">
+                <FileText className="w-4 h-4 text-cyan-400" />
+                Upload Instruction PDF
+              </span>
+              <span className="text-[10px] font-mono text-cyan-400 truncate max-w-[150px]">
+                {formData.pdfFileName || 'No PDF'}
+              </span>
+            </div>
+            <label className="cursor-pointer inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-cyan-900/60 hover:bg-cyan-800/80 border border-cyan-700/80 text-cyan-100 font-medium text-xs transition-colors">
+              <Upload className="w-3.5 h-3.5" />
+              <span>Select PDF / Text File</span>
+              <input
+                type="file"
+                accept=".pdf,.txt,.md,.json"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
+            <p className="text-[11px] text-slate-400">
+              The extracted PDF rules will automatically feed into all connected AI decision nodes and Telegram Bot responses.
+            </p>
+          </div>
+        )}
+
         {Object.entries(formData).map(([key, val]) => {
-          const isLongText = typeof val === 'string' && (val.length > 50 || key.toLowerCase().includes('prompt') || key.toLowerCase().includes('format'));
+          const isLongText =
+            typeof val === 'string' &&
+            (val.length > 50 ||
+              key.toLowerCase().includes('prompt') ||
+              key.toLowerCase().includes('rules') ||
+              key.toLowerCase().includes('format'));
 
           return (
             <div key={key} className="space-y-1.5">
@@ -79,7 +127,7 @@ export const NodeConfigDrawer: React.FC<NodeConfigDrawerProps> = ({
 
               {isLongText ? (
                 <textarea
-                  rows={4}
+                  rows={5}
                   value={String(val)}
                   onChange={(e) => handleFieldChange(key, e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs font-mono text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"

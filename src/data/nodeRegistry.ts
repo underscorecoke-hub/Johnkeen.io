@@ -34,6 +34,23 @@ export const NODE_REGISTRY: Record<string, NodeRegistryItem> = {
     inputs: [],
     outputs: [{ id: 'payload', label: 'HTTP Payload', type: 'object' }],
   },
+  data_instruction: {
+    type: 'data_instruction',
+    label: 'PDF & System Instructions',
+    category: 'ai_data',
+    description: 'Master PDF rules & instructions for Telegram Bot and AI Brain nodes',
+    iconName: 'FileText',
+    color: 'from-cyan-500/20 to-blue-600/20',
+    borderColor: 'border-cyan-500/50',
+    defaultConfig: {
+      instructionTitle: 'Telegram Bot & System Master Instructions',
+      pdfFileName: 'Telegram_System_Instructions.pdf',
+      rulesText: '1. Respond to Telegram /start and /arbitrage commands using these instructions.\n2. Execute flash loan arbitrage only when profit spread > 0.5%.\n3. Verify NVIDIA or Gemini API key before execution.',
+      strictEnforcement: true,
+    },
+    inputs: [{ id: 'trigger_signal', label: 'Trigger Signal', type: 'object' }],
+    outputs: [{ id: 'instruction_rules', label: 'Instruction Rules', type: 'object' }],
+  },
   data_gemini: {
     type: 'data_gemini',
     label: 'Gemini AI Extractor',

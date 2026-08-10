@@ -3,6 +3,7 @@ export type NodeCategory = 'trigger' | 'ai_data' | 'web3_action' | 'output';
 export type NodeType =
   | 'trigger_telegram'
   | 'trigger_webhook'
+  | 'data_instruction'
   | 'data_gemini'
   | 'data_1inch'
   | 'web3_balancer'
@@ -29,10 +30,14 @@ export interface ApiVaultKeys {
   telegramChatId: string;
   oneInchApiKey: string;
   geminiApiKey: string;
+  nvidiaApiKey: string;
   walletAddress: string;
   walletPrivateKey: string;
   pimlicoApiKey: string;
   webhookUrl: string;
+  pdfInstructionName?: string;
+  pdfInstructionText?: string;
+  preferredModel?: string;
 }
 
 export interface ExecutionLogItem {
