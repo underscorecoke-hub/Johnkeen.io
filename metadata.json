@@ -1,0 +1,6 @@
+{
+  "name": "Visual Node Workflow Studio",
+  "description": "Visual node workflow builder with Gemini AI graph generation, Balancer flash loan simulation, Pimlico zero-gas paymaster execution, and Telegram bot integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
